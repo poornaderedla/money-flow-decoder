@@ -44,55 +44,98 @@ interface AssessmentResultsProps {
 }
 
 const calculateScores = (data: AssessmentData): ResultsData => {
-  // This is a simplified scoring algorithm - in a real app, you'd have more sophisticated analysis
+  const calculateSectionScore = (sectionStart: number, sectionEnd: number, isFeelingsSection = false) => {
+    let totalScore = 0;
+    let questionCount = 0;
+    
+    for (let i = sectionStart; i <= sectionEnd; i++) {
+      const answer = data[i.toString()];
+      if (answer && answer.trim() !== '') {
+        let score = 3; // Default neutral
+        
+        // For likert scale questions (stored as "1", "2", "3", "4", "5")
+        if (!isNaN(Number(answer))) {
+          score = Number(answer);
+        }
+        // For feelings section - score based on emotional positivity
+        else if (isFeelingsSection) {
+          const positiveResponses = [
+            'Excited and motivated', 'Confident', 'Disappointed but motivated', 
+            'Neutral, it happens', 'Comfortable and open', 'Proud to share',
+            'Motivated to earn more', 'Patient, I\'ll wait', 'Pure joy and gratitude',
+            'Relief', 'Neutral, it\'s just practical', 'Inspired and motivated',
+            'Happy for them', 'Calm and in control', 'Never', 'Rarely',
+            'Grateful and deserving', 'Excited and appreciative'
+          ];
+          const negativeResponses = [
+            'Fearful or doubtful', 'Overwhelmed', 'Extremely discouraged',
+            'Ashamed or guilty', 'Very uncomfortable', 'Defensive',
+            'Guilty for wanting it', 'Tempted to buy anyway', 'Suspicion or worry',
+            'Anxiety about spending it right', 'Humiliated and ashamed',
+            'Resistant to asking', 'Jealous and resentful', 'Bitter or resentful',
+            'Insecure about my situation', 'Very stressed', 'Resentful',
+            'Often', 'Uncomfortable receiving', 'Worried about obligations'
+          ];
+          
+          if (positiveResponses.includes(answer)) score = 5;
+          else if (negativeResponses.includes(answer)) score = 2;
+          else score = 3;
+        }
+        // For other multiple choice questions
+        else {
+          // Map answers to scores based on financial positivity
+          const scoreMap: { [key: string]: number } = {
+            // High positive responses
+            'Strongly disagree': 5, 'Never': 5, 'Yes, significantly more': 5,
+            'Completely debt-free': 5, 'Yes, 20% or more': 5, 'Yes, several active streams': 5,
+            'Regular, diversified investing': 5, 'Yes, multiple assets': 5,
+            'Detailed written plan': 5, 'Multiple active steps': 5, 'Constantly learning': 5,
+            'Pure logic': 5, 'Regular learning': 5,
+            
+            // Positive responses  
+            'Somewhat disagree': 4, 'Rarely': 4, 'Yes, about 2x': 4,
+            'Actively paying off debt': 4, 'Yes, 10-19%': 4, 'Yes, 2-3 streams': 4,
+            'Occasional investing': 4, 'Yes, one main asset': 4,
+            'Basic written plan': 4, 'A few steps': 4, 'Mostly logic': 4,
+            'Daily': 4, 'Monthly': 4, 'Regularly': 4, 'Yes, significant support': 4,
+            
+            // Neutral responses
+            'Neutral': 3, 'Sometimes': 3, 'Close to 2x': 3,
+            'Managing debt well': 3, 'Yes, 5-9%': 3, 'Yes, 1 additional stream': 3,
+            'Just started investing': 3, 'Yes, small investments': 3,
+            'Mental plan only': 3, 'One or two steps': 3, 'Balanced emotion/logic': 3,
+            'Weekly': 3, 'Quarterly': 3, 'Occasional learning': 3, 'Yes, moderate support': 3,
+            
+            // Negative responses
+            'Somewhat agree': 2, 'Often': 2, 'No, but close': 2,
+            'Struggling with debt': 2, 'Yes, under 5%': 2, 'Working on developing them': 2,
+            'Planning to start soon': 2, 'Planning to acquire': 2,
+            'Rough ideas': 2, 'Thinking about it': 2, 'Somewhat emotion': 2,
+            'Yearly': 2, 'Yes, occasional support': 2,
+            
+            // Very negative responses
+            'Strongly agree': 1, 'Always': 1, 'Very often': 1, 'No, far from it': 1,
+            'Overwhelmed by debt': 1, 'No, inconsistent': 1, 'No, single income source': 1,
+            'Not investing': 1, 'No assets': 1, 'No plan': 1, 'No steps taken': 1,
+            'Pure emotion': 1, 'Mostly emotion': 1, 'No interest': 1
+          };
+          
+          score = scoreMap[answer] || 3; // Default to neutral if not found
+        }
+        
+        totalScore += score;
+        questionCount++;
+      }
+    }
+    
+    return questionCount > 0 ? Math.round((totalScore / questionCount) * 20) : 0;
+  };
   
-  // Calculate feeling score (questions 1-12)
-  let feelingTotal = 0;
-  let feelingCount = 0;
-  for (let i = 1; i <= 12; i++) {
-    const answer = data[i];
-    if (answer && !isNaN(Number(answer))) {
-      feelingTotal += Number(answer);
-      feelingCount++;
-    }
-  }
-  const feelingScore = feelingCount > 0 ? Math.round((feelingTotal / feelingCount) * 20) : 0;
-
-  // Calculate beliefs score (questions 13-24) 
-  let beliefsTotal = 0;
-  let beliefsCount = 0;
-  for (let i = 13; i <= 24; i++) {
-    const answer = data[i];
-    if (answer && !isNaN(Number(answer))) {
-      beliefsTotal += Number(answer);
-      beliefsCount++;
-    }
-  }
-  const beliefsScore = beliefsCount > 0 ? Math.round((beliefsTotal / beliefsCount) * 20) : 0;
-
-  // Calculate action score (questions 25-36)
-  let actionTotal = 0;
-  let actionCount = 0;
-  for (let i = 25; i <= 36; i++) {
-    const answer = data[i];
-    if (answer === "Yes" || answer === "Daily" || answer === "Yes, regularly") actionTotal += 5;
-    else if (answer === "Maybe" || answer === "Weekly" || answer === "Yes, occasionally") actionTotal += 3;
-    else if (answer === "No" || answer === "Never" || answer === "No") actionTotal += 1;
-    actionCount++;
-  }
-  const actionScore = actionCount > 0 ? Math.round((actionTotal / actionCount) * 20) : 0;
-
-  // Calculate reality score (questions 37-48)
-  let realityTotal = 0;
-  let realityCount = 0;
-  for (let i = 37; i <= 48; i++) {
-    const answer = data[i];
-    if (answer === "Yes" || answer === "Completely debt-free" || answer === "Yes, regularly") realityTotal += 5;
-    else if (answer === "Maybe" || answer === "Actively paying off debt") realityTotal += 3;
-    else if (answer === "No" || answer === "Overwhelmed by debt") realityTotal += 1;
-    realityCount++;
-  }
-  const realityScore = realityCount > 0 ? Math.round((realityTotal / realityCount) * 20) : 0;
+  // Calculate scores for each section
+  const feelingScore = calculateSectionScore(1, 12, true);
+  const beliefsScore = calculateSectionScore(13, 24);
+  const actionScore = calculateSectionScore(25, 36);
+  const realityScore = calculateSectionScore(37, 48);
 
   // Determine tiers and recommendations based on scores
   const getTier = (score: number, categories: string[]) => {
