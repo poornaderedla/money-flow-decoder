@@ -12,7 +12,9 @@ import {
   Star,
   CheckCircle,
   ArrowRight,
-  Download
+  Download,
+  RefreshCcw,
+  Mail
 } from 'lucide-react';
 
 interface AssessmentData {
@@ -104,23 +106,24 @@ const calculateScores = (data: AssessmentData): ResultsData => {
             'Managing debt well': 3, 'Yes, 5-9%': 3, 'Yes, 1 additional stream': 3,
             'Just started investing': 3, 'Yes, small investments': 3,
             'Mental plan only': 3, 'One or two steps': 3, 'Balanced emotion/logic': 3,
-            'Weekly': 3, 'Quarterly': 3, 'Occasional learning': 3, 'Yes, moderate support': 3,
+            'Weekly': 3, 'Quarterly': 3, 'Occasionally': 3, 'Yes, moderate support': 3,
             
             // Negative responses
             'Somewhat agree': 2, 'Often': 2, 'No, but close': 2,
             'Struggling with debt': 2, 'Yes, under 5%': 2, 'Working on developing them': 2,
             'Planning to start soon': 2, 'Planning to acquire': 2,
-            'Rough ideas': 2, 'Thinking about it': 2, 'Somewhat emotion': 2,
-            'Yearly': 2, 'Yes, occasional support': 2,
+            'Rough ideas': 2, 'Thinking about it': 2, 'Mostly emotion': 2,
+            'Yearly': 2, 'Rarely': 2, 'Yes, occasional support': 2,
             
             // Very negative responses
-            'Strongly agree': 1, 'Always': 1, 'Very often': 1, 'No, far from it': 1,
+            'Strongly agree': 1, 'Always': 1, 'No, far from it': 1,
             'Overwhelmed by debt': 1, 'No, inconsistent': 1, 'No, single income source': 1,
-            'Not investing': 1, 'No assets': 1, 'No plan': 1, 'No steps taken': 1,
-            'Pure emotion': 1, 'Mostly emotion': 1, 'No interest': 1
+            'Not investing': 1, 'No assets': 1, 'No plan': 1,
+            'No steps taken': 1, 'Pure emotion': 1, 'Never': 1,
+            'I prefer learning alone': 1, 'Never': 1
           };
           
-          score = scoreMap[answer] || 3; // Default to neutral if not found
+          score = scoreMap[answer] || 3;
         }
         
         totalScore += score;
@@ -130,113 +133,116 @@ const calculateScores = (data: AssessmentData): ResultsData => {
     
     return questionCount > 0 ? Math.round((totalScore / questionCount) * 20) : 0;
   };
-  
-  // Calculate scores for each section
+
+  const getTier = (score: number, categories: string[]) => {
+    if (score >= 80) return categories[0];
+    if (score >= 60) return categories[1];
+    if (score >= 40) return categories[2];
+    return categories[3];
+  };
+
   const feelingScore = calculateSectionScore(1, 12, true);
   const beliefsScore = calculateSectionScore(13, 24);
   const actionScore = calculateSectionScore(25, 36);
   const realityScore = calculateSectionScore(37, 48);
 
-  // Determine tiers and recommendations based on scores
-  const getTier = (score: number, categories: string[]) => {
-    if (score >= 80) return categories[3] || categories[2];
-    if (score >= 60) return categories[2];
-    if (score >= 40) return categories[1];
-    return categories[0];
-  };
+  const totalScore = Math.round((feelingScore + beliefsScore + actionScore + realityScore) / 4);
 
-  const feelingTier = getTier(feelingScore, ["Fear-Based", "Neutral", "Empowered", "Abundant"]);
-  const beliefsTier = getTier(beliefsScore, ["Scarcity Thinker", "Transitional Believer", "Wealth Coder"]);
-  const actionTier = getTier(actionScore, ["Avoider", "Spender", "Aligned Action Taker"]);
-  const realityTier = getTier(realityScore, ["Survival", "Stability", "Growth", "Freedom"]);
+  const feelingTier = getTier(feelingScore, ['Abundance Mindset', 'Growth Mindset', 'Scarcity Mindset', 'Fear-Based Mindset']);
+  const beliefsTier = getTier(beliefsScore, ['Empowering Beliefs', 'Positive Beliefs', 'Mixed Beliefs', 'Limiting Beliefs']);
+  const actionTier = getTier(actionScore, ['Consistent Action', 'Regular Action', 'Inconsistent Action', 'Avoidant Action']);
+  const realityTier = getTier(realityScore, ['Financial Freedom', 'Financial Stability', 'Financial Struggle', 'Financial Crisis']);
 
-  const overallScore = Math.round((feelingScore + beliefsScore + actionScore + realityScore) / 4);
-  const wealthStage = getTier(overallScore, ["Foundation Building", "Stability Creating", "Growth Focused", "Freedom Oriented"]);
+  const overallProfile = `You have a ${feelingTier.toLowerCase()} with ${beliefsTier.toLowerCase()}. Your money actions are ${actionTier.toLowerCase()}, and your current financial reality shows ${realityTier.toLowerCase()}.`;
+
+  const wealthStage = totalScore >= 80 ? 'Wealth Builder' : 
+                     totalScore >= 60 ? 'Financial Growth' : 
+                     totalScore >= 40 ? 'Financial Awareness' : 'Financial Foundation';
 
   return {
     feelingScore: {
       score: feelingScore,
       tier: feelingTier,
       patterns: [
-        feelingScore < 60 ? "Emotional resistance around money topics" : "Positive emotional relationship with money",
-        feelingScore < 40 ? "High anxiety in financial situations" : "Calm approach to financial decisions",
-        "Need for emotional reframing around wealth"
+        'Your emotional responses to money situations',
+        'How you handle financial stress and uncertainty',
+        'Your relationship with money as an emotional tool'
       ],
       recommendations: [
-        "Practice daily gratitude for current abundance",
-        "Use EFT tapping for money anxiety",
-        "Visualize positive financial outcomes"
+        'Practice mindfulness around money decisions',
+        'Develop positive money affirmations',
+        'Work on reducing financial anxiety through education'
       ],
       affirmations: [
-        "I am worthy of financial abundance",
-        "Money flows to me easily and effortlessly", 
-        "I feel calm and confident with money"
+        'I am worthy of financial abundance',
+        'Money flows to me easily and frequently',
+        'I handle financial challenges with grace and wisdom'
       ]
     },
     beliefsScore: {
       score: beliefsScore,
       tier: beliefsTier,
       patterns: [
-        beliefsScore < 60 ? "Limiting beliefs about money and wealth" : "Empowering money beliefs",
-        beliefsScore < 40 ? "Inherited negative money programming" : "Healthy money mindset",
-        "Opportunity for belief transformation"
+        'Your core beliefs about money and wealth',
+        'How you view rich people and success',
+        'Your mindset around financial opportunities'
       ],
       recommendations: [
-        "Daily subconscious reprogramming",
-        "Challenge limiting money beliefs",
-        "Study wealthy role models"
+        'Identify and challenge limiting money beliefs',
+        'Surround yourself with positive financial role models',
+        'Read books on money mindset and wealth psychology'
       ],
       affirmations: [
-        "I deserve to be wealthy and abundant",
-        "Money is a tool for good in my life",
-        "I release all limiting beliefs about money"
+        'I believe in my ability to create wealth',
+        'Rich people are generous and contribute to society',
+        'Financial success is available to everyone who works for it'
       ]
     },
     actionScore: {
       score: actionScore,
       tier: actionTier,
       patterns: [
-        actionScore < 60 ? "Inconsistent financial habits" : "Strong financial discipline",
-        actionScore < 40 ? "Avoidance of money management" : "Proactive money management",
-        "Gap between intentions and actions"
+        'Your consistency with financial planning',
+        'How you approach financial tasks and decisions',
+        'Your level of financial education and learning'
       ],
       recommendations: [
-        "Create automated saving systems",
-        "Set weekly financial check-ins",
-        "Track expenses daily"
+        'Create and stick to a daily financial routine',
+        'Automate your savings and investment processes',
+        'Set up regular financial review sessions'
       ],
       affirmations: [
-        "I take consistent action toward my financial goals",
-        "I am disciplined with my money choices",
-        "Every day I grow my wealth"
+        'I take consistent action toward my financial goals',
+        'I am disciplined and committed to financial success',
+        'Every financial decision I make moves me closer to abundance'
       ]
     },
     realityScore: {
       score: realityScore,
       tier: realityTier,
       patterns: [
-        realityScore < 60 ? "Financial stress and instability" : "Growing financial security",
-        realityScore < 40 ? "Living paycheck to paycheck" : "Building wealth systematically",
-        "Current reality reflects inner state"
+        'Your current financial situation and stability',
+        'How you manage debt and savings',
+        'Your income streams and asset base'
       ],
       recommendations: [
-        "Build emergency fund first",
-        "Increase income through skills",
-        "Start investing consistently"
+        'Create a detailed financial plan with specific goals',
+        'Focus on building multiple income streams',
+        'Prioritize debt reduction and emergency fund building'
       ],
       affirmations: [
-        "My financial reality improves every day",
-        "I am building lasting wealth",
-        "Money works for me while I sleep"
+        'I am building a solid financial foundation',
+        'My financial situation improves every day',
+        'I attract opportunities that increase my wealth'
       ]
     },
-    overallProfile: `You are in the ${wealthStage} stage of your money journey. Your overall money relationship score of ${overallScore}/100 shows ${overallScore >= 70 ? 'strong' : overallScore >= 50 ? 'developing' : 'emerging'} alignment across emotions, beliefs, actions, and reality.`,
+    overallProfile,
     topActionSteps: [
-      "Start each day with money affirmations",
-      "Set up automatic savings of 20% of income", 
-      "Read one money mindset book per month",
-      "Track all expenses for 30 days",
-      "Visualize financial goals daily for 10 minutes"
+      'Start tracking your money emotions daily',
+      'Identify and replace one limiting money belief',
+      'Create a simple financial routine you can stick to',
+      'Set up automatic savings from your next paycheck',
+      'Learn one new financial concept this week'
     ],
     personalizedAffirmation: `I am transforming my relationship with money. I choose abundance over scarcity, action over avoidance, and growth over fear. My ${wealthStage.toLowerCase()} mindset attracts wealth and opportunities. I am worthy of financial freedom and use money as a force for good in the world.`,
     wealthStage
@@ -246,155 +252,139 @@ const calculateScores = (data: AssessmentData): ResultsData => {
 export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, onRestart }) => {
   const results = calculateScores(data);
 
-  const ScoreCard: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    scoreData: ScoreBreakdown;
-    color: string;
-  }> = ({ title, icon, scoreData, color }) => (
-    <Card className="gradient-card border-0 shadow-lg">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg bg-${color}-100`}>
-              {icon}
-            </div>
-            <CardTitle className="text-xl">{title}</CardTitle>
-          </div>
-          <Badge variant="secondary" className="text-lg font-bold">
-            {scoreData.score}/100
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Current Level</span>
-            <span className={`font-semibold text-${color}-600`}>{scoreData.tier}</span>
-          </div>
-          <Progress value={scoreData.score} className="h-2" />
-        </div>
-        
-        <div>
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Key Patterns
-          </h4>
-          <ul className="space-y-1">
-            {scoreData.patterns.map((pattern, index) => (
-              <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                <CheckCircle className="h-3 w-3 mt-1 text-accent flex-shrink-0" />
-                {pattern}
-              </li>
-            ))}
-          </ul>
-        </div>
+  const dimensionNames: { [key: string]: string } = {
+    feelingScore: "Money Feelings",
+    beliefsScore: "Money Beliefs", 
+    actionScore: "Money Actions",
+    realityScore: "Financial Reality"
+  };
 
-        <div>
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Star className="h-4 w-4" />
-            Recommended Actions
-          </h4>
-          <ul className="space-y-1">
-            {scoreData.recommendations.map((rec, index) => (
-              <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                <ArrowRight className="h-3 w-3 mt-1 text-accent flex-shrink-0" />
-                {rec}
-              </li>
-            ))}
-          </ul>
-        </div>
+  const dimensionIcons = {
+    feelingScore: <Heart className="h-5 w-5 text-black" />,
+    beliefsScore: <Brain className="h-5 w-5 text-black" />,
+    actionScore: <Target className="h-5 w-5 text-black" />,
+    realityScore: <DollarSign className="h-5 w-5 text-black" />
+  };
 
-        <div>
-          <h4 className="font-semibold mb-2">Daily Affirmations</h4>
-          <div className="space-y-2">
-            {scoreData.affirmations.map((affirmation, index) => (
-              <div key={index} className="p-3 bg-accent/10 rounded-lg text-sm italic">
-                "{affirmation}"
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const handleDownloadResults = () => {
+    // Implementation for downloading results
+    console.log('Download results');
+  };
+
+  const handleSendToEmail = () => {
+    // Implementation for sending to email
+    console.log('Send to email');
+  };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gradient mb-4">
-            Your Money Relationship Results
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+    <div className="min-h-screen bg-white text-black">
+      <div className="container mx-auto px-6 py-8 max-w-6xl">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center border border-gray-200">
+                <span className="text-4xl font-bold text-black">{Math.round((results.feelingScore.score + results.beliefsScore.score + results.actionScore.score + results.realityScore.score) / 4)}</span>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-black">Your Money Relationship Results</h1>
+          </div>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             {results.overallProfile}
           </p>
         </div>
 
         {/* Overall Summary */}
-        <Card className="mb-8 gradient-card border-0 shadow-xl animate-slide-up">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">
-              Wealth Stage: {results.wealthStage}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center space-y-4">
-              <div className="p-6 bg-accent/10 rounded-lg">
-                <h3 className="font-semibold mb-3">Personalized Affirmation</h3>
-                <p className="text-lg italic leading-relaxed">
-                  "{results.personalizedAffirmation}"
-                </p>
+        <Card className="bg-white border border-gray-200 mb-8">
+          <CardHeader className="text-center pb-4">
+            <div className="flex justify-center mb-4">
+              <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center border border-gray-200">
+                  <span className="text-4xl font-bold text-black">{Math.round((results.feelingScore.score + results.beliefsScore.score + results.actionScore.score + results.realityScore.score) / 4)}</span>
+                </div>
               </div>
             </div>
-          </CardContent>
+            <CardTitle className="text-2xl text-black">Money Relationship Score</CardTitle>
+            <span className="bg-black text-white text-lg px-8 py-3 rounded-md font-medium cursor-default select-none pointer-events-none inline-block mt-2">
+              {results.wealthStage}
+            </span>
+            <p className="text-gray-600 mt-2">{results.personalizedAffirmation}</p>
+          </CardHeader>
         </Card>
 
-        {/* Score Breakdown */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ScoreCard
-            title="Money Feeling Frequency"
-            icon={<Heart className="h-5 w-5 text-red-500" />}
-            scoreData={results.feelingScore}
-            color="red"
-          />
-          <ScoreCard
-            title="Money Beliefs Frequency"
-            icon={<Brain className="h-5 w-5 text-blue-500" />}
-            scoreData={results.beliefsScore}
-            color="blue"
-          />
-          <ScoreCard
-            title="Money Action Frequency"
-            icon={<Target className="h-5 w-5 text-green-500" />}
-            scoreData={results.actionScore}
-            color="green"
-          />
-          <ScoreCard
-            title="Financial Reality Score"
-            icon={<DollarSign className="h-5 w-5 text-yellow-500" />}
-            scoreData={results.realityScore}
-            color="yellow"
-          />
+        {/* Dimension Scores */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {Object.entries({
+            feelingScore: results.feelingScore,
+            beliefsScore: results.beliefsScore,
+            actionScore: results.actionScore,
+            realityScore: results.realityScore
+          }).map(([dimension, scoreData]) => (
+            <Card key={dimension} className="bg-white border border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-black">{dimensionNames[dimension]}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-black mb-2">{scoreData.score}/100</div>
+                <Progress value={scoreData.score} />
+                <p className="text-xs text-gray-500 mt-2">{scoreData.tier}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Strengths and Growth Areas */}
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <Card className="bg-white border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-black flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Key Strengths
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {results.feelingScore.patterns.slice(0, 2).map((pattern, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-black"></div>
+                    <span className="text-black">{pattern}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-black flex items-center gap-2">
+                <ArrowRight className="w-5 h-5" />
+                Growth Opportunities
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {results.feelingScore.recommendations.slice(0, 2).map((rec, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                    <span className="text-black">{rec}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Action Steps */}
-        <Card className="mb-8 gradient-card border-0 shadow-lg animate-slide-up">
+        <Card className="bg-white border border-gray-200 mb-8">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-accent" />
-              Top 5 Action Steps
-            </CardTitle>
+            <CardTitle className="text-black text-xl">Your 90-Day Money Transformation Roadmap</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
               {results.topActionSteps.map((step, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-accent/5 rounded-lg">
-                  <div className="flex-shrink-0 w-6 h-6 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-shrink-0 w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-sm font-bold">
                     {index + 1}
                   </div>
-                  <span className="text-sm">{step}</span>
+                  <span className="text-sm text-black">{step}</span>
                 </div>
               ))}
             </div>
@@ -402,22 +392,39 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, onRe
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             onClick={onRestart}
             variant="outline"
-            size="lg"
-            className="flex items-center gap-2"
+            className="px-4 py-2 text-base min-w-[120px] inline-flex items-center rounded"
+            style={{ transition: 'background 0.2s' }}
+            onMouseOver={e => e.currentTarget.style.background = '#d3d3d3'}
+            onMouseOut={e => e.currentTarget.style.background = 'white'}
           >
+            <RefreshCcw className="w-5 h-5 mr-2" />
             Retake Assessment
           </Button>
           <Button
-            className="btn-gradient flex items-center gap-2"
-            size="lg"
-            onClick={() => window.print()}
+            variant="outline"
+            className="px-4 py-2 text-base min-w-[120px] inline-flex items-center rounded"
+            style={{ transition: 'background 0.2s' }}
+            onMouseOver={e => e.currentTarget.style.background = '#d3d3d3'}
+            onMouseOut={e => e.currentTarget.style.background = 'white'}
+            onClick={handleDownloadResults}
           >
-            <Download className="h-4 w-4" />
-            Save Results
+            <Download className="w-5 h-5 mr-2" />
+            Download Results
+          </Button>
+          <Button
+            variant="outline"
+            className="px-4 py-2 text-base min-w-[120px] inline-flex items-center rounded"
+            style={{ transition: 'background 0.2s' }}
+            onMouseOver={e => e.currentTarget.style.background = '#d3d3d3'}
+            onMouseOut={e => e.currentTarget.style.background = 'white'}
+            onClick={handleSendToEmail}
+          >
+            <Mail className="w-5 h-5 mr-2" />
+            Send to Email
           </Button>
         </div>
       </div>

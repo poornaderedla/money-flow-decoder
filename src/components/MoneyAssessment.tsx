@@ -142,10 +142,14 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
         return (
           <RadioGroup value={currentAnswer} onValueChange={handleAnswer} className="space-y-3">
             {likertOptions.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={String(index + 1)} id={`option-${index}`} />
-                <Label htmlFor={`option-${index}`} className="cursor-pointer">{option}</Label>
-              </div>
+              <label key={index} className="w-full p-4 rounded-lg border-2 text-left transition-all duration-200 flex items-center justify-between cursor-pointer">
+                <span className="font-medium text-black">{option}</span>
+                <RadioGroupItem
+                  value={String(index + 1)}
+                  id={`option-${index}`}
+                  className="form-radio h-4 w-4 text-black border-gray-300 focus:ring-black"
+                />
+              </label>
             ))}
           </RadioGroup>
         );
@@ -154,10 +158,14 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
         return (
           <RadioGroup value={currentAnswer} onValueChange={handleAnswer} className="space-y-3">
             {question.options?.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`option-${index}`} />
-                <Label htmlFor={`option-${index}`} className="cursor-pointer">{option}</Label>
-              </div>
+              <label key={index} className="w-full p-4 rounded-lg border-2 text-left transition-all duration-200 flex items-center justify-between cursor-pointer">
+                <span className="font-medium text-black">{option}</span>
+                <RadioGroupItem
+                  value={option}
+                  id={`option-${index}`}
+                  className="form-radio h-4 w-4 text-black border-gray-300 focus:ring-black"
+                />
+              </label>
             ))}
           </RadioGroup>
         );
@@ -166,10 +174,14 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
         return (
           <RadioGroup value={currentAnswer} onValueChange={handleAnswer} className="space-y-3">
             {yesNoOptions.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`option-${index}`} />
-                <Label htmlFor={`option-${index}`} className="cursor-pointer">{option}</Label>
-              </div>
+              <label key={index} className="w-full p-4 rounded-lg border-2 text-left transition-all duration-200 flex items-center justify-between cursor-pointer">
+                <span className="font-medium text-black">{option}</span>
+                <RadioGroupItem
+                  value={option}
+                  id={`option-${index}`}
+                  className="form-radio h-4 w-4 text-black border-gray-300 focus:ring-black"
+                />
+              </label>
             ))}
           </RadioGroup>
         );
@@ -180,7 +192,7 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
             value={currentAnswer}
             onChange={(e) => handleAnswer(e.target.value)}
             placeholder="Share your thoughts... (optional)"
-            className="min-h-[100px]"
+            className="min-h-[100px] w-full p-4 border-2 rounded-lg"
           />
         );
 
@@ -190,34 +202,30 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-white text-black">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gradient mb-4">
-            Money Relationship Assessment
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Discover and transform your relationship with money across four key dimensions
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-semibold text-black">Money Relationship Assessment</span>
+          </div>
         </div>
-
+        
         {/* Progress */}
-        <div className="mb-8 animate-slide-up">
+        <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              Question {currentQuestion + 1} of {questions.length}
-            </span>
-            <span className="text-sm font-medium text-muted-foreground">
-              {Math.round(progress)}% Complete
-            </span>
+            <h2 className="text-lg font-medium text-black">Your Progress</h2>
+            <span className="text-sm font-medium text-black">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
+          <div className="text-sm text-gray-500 mt-1">
+            Question {currentQuestion + 1} of {questions.length}
+          </div>
         </div>
 
         {/* Section Indicator */}
-        <div className="mb-6 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-accent/20 text-accent-foreground">
+        <div className="mb-6">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 text-gray-700">
             <span className="text-sm font-medium">
               Section {currentSection + 1}: {sectionTitles[currentSection]}
             </span>
@@ -225,36 +233,41 @@ export const MoneyAssessment: React.FC<MoneyAssessmentProps> = ({ onComplete }) 
         </div>
 
         {/* Question Card */}
-        <Card className="mb-8 animate-slide-up gradient-card border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-foreground leading-relaxed">
-              {question.text}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {renderQuestionInput()}
-          </CardContent>
-        </Card>
+        <div className="space-y-8">
+          <Card className="bg-white border border-gray-200 mb-8 text-black">
+            <CardHeader>
+              <CardTitle className="text-2xl text-black leading-relaxed">
+                {question.text}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {renderQuestionInput()}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center animate-slide-up">
+        <div className="flex justify-between mt-8">
           <Button
             onClick={prevQuestion}
             disabled={currentQuestion === 0}
             variant="outline"
-            className="flex items-center gap-2"
+            className="inline-flex items-center px-6 py-3 rounded"
+            style={{ transition: 'background 0.2s' }}
+            onMouseOver={e => e.currentTarget.style.background = '#d3d3d3'}
+            onMouseOut={e => e.currentTarget.style.background = 'white'}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="w-4 h-4 mr-2" />
             Previous
           </Button>
           
           <Button
             onClick={nextQuestion}
             disabled={!answers[question.id]}
-            className="btn-gradient flex items-center gap-2"
+            className="bg-black hover:bg-gray-800 text-white disabled:bg-gray-300 inline-flex items-center px-6 py-3"
           >
             {currentQuestion === questions.length - 1 ? 'Complete Assessment' : 'Next'}
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </div>
