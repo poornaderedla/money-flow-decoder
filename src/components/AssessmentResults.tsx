@@ -133,9 +133,9 @@ const calculateScores = (data: AssessmentData): ResultsData => {
   
   // Calculate scores for each section
   const feelingScore = calculateSectionScore(1, 12, true);
-  const beliefsScore = calculateSectionScore(13, 24);
-  const actionScore = calculateSectionScore(25, 36);
-  const realityScore = calculateSectionScore(37, 48);
+  const beliefsScore = calculateSectionScore(13, 26);
+  const actionScore = calculateSectionScore(27, 38);
+  const realityScore = calculateSectionScore(39, 50);
 
   // Determine tiers and recommendations based on scores
   const getTier = (score: number, categories: string[]) => {
@@ -313,6 +313,38 @@ export const AssessmentResults: React.FC<AssessmentResultsProps> = ({ data, onRe
                 "{affirmation}"
               </div>
             ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-semibold mb-2 text-primary">Transformation Guidance</h4>
+          <div className="p-4 bg-primary/10 rounded-lg">
+            <p className="text-sm">
+              {title === "Money Feeling Frequency" && (
+                scoreData.score >= 80 ? "Maintain gratitude, confidence, and joy around money. Practice abundance consciousness daily." :
+                scoreData.score >= 60 ? "Cultivate excitement and confidence when setting financial goals. Replace anxiety with anticipation." :
+                scoreData.score >= 40 ? "Develop feelings of deservingness and worthiness. Practice self-compassion around money mistakes." :
+                "Transform fear into curiosity, shame into empowerment, and scarcity into abundance mindset."
+              )}
+              {title === "Money Beliefs Frequency" && (
+                scoreData.score >= 80 ? "I am a natural wealth creator. Money flows to me easily. I deserve unlimited abundance." :
+                scoreData.score >= 60 ? "Wealth is my birthright. I have unique gifts that create value. Financial freedom is inevitable for me." :
+                scoreData.score >= 40 ? "I am worthy of wealth. Money is a tool for good. I can learn to manage money successfully." :
+                "I release all limiting money beliefs. Wealth comes naturally to me. I deserve financial abundance and freedom."
+              )}
+              {title === "Money Action Frequency" && (
+                scoreData.score >= 80 ? "I consistently take inspired action toward wealth. My financial discipline creates lasting abundance." :
+                scoreData.score >= 60 ? "I commit to daily wealth-building actions. Every decision moves me closer to financial freedom." :
+                scoreData.score >= 40 ? "I take consistent action despite fear. My commitment to growth is stronger than my comfort zone." :
+                "I take one wealth-building action daily. Progress over perfection. I am becoming financially disciplined."
+              )}
+              {title === "Financial Reality Score" && (
+                scoreData.score >= 80 ? "My wealth grows exponentially. I am financially free and abundant. My success inspires others." :
+                scoreData.score >= 60 ? "My financial situation improves daily. I am on the path to complete financial freedom." :
+                scoreData.score >= 40 ? "I am building a strong financial foundation. Every day I become more financially secure." :
+                "I am transforming my financial reality. Abundance is flowing into my life in perfect timing."
+              )}
+            </p>
           </div>
         </div>
       </CardContent>
