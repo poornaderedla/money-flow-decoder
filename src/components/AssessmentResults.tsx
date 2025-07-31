@@ -113,14 +113,14 @@ const calculateScores = (data: AssessmentData): ResultsData => {
             'Struggling with debt': 2, 'Yes, under 5%': 2, 'Working on developing them': 2,
             'Planning to start soon': 2, 'Planning to acquire': 2,
             'Rough ideas': 2, 'Thinking about it': 2, 'Mostly emotion': 2,
-            'Yearly': 2, 'Rarely': 2, 'Yes, occasional support': 2,
+            'Yearly': 2, 'Yes, occasional support': 2,
             
             // Very negative responses
             'Strongly agree': 1, 'Always': 1, 'No, far from it': 1,
             'Overwhelmed by debt': 1, 'No, inconsistent': 1, 'No, single income source': 1,
             'Not investing': 1, 'No assets': 1, 'No plan': 1,
-            'No steps taken': 1, 'Pure emotion': 1, 'Never': 1,
-            'I prefer learning alone': 1, 'Never': 1
+            'No steps taken': 1, 'Pure emotion': 1,
+            'I prefer learning alone': 1
           };
           
           score = scoreMap[answer] || 3;
@@ -142,9 +142,9 @@ const calculateScores = (data: AssessmentData): ResultsData => {
   };
 
   const feelingScore = calculateSectionScore(1, 12, true);
-  const beliefsScore = calculateSectionScore(13, 24);
-  const actionScore = calculateSectionScore(25, 36);
-  const realityScore = calculateSectionScore(37, 48);
+  const beliefsScore = calculateSectionScore(13, 26);
+  const actionScore = calculateSectionScore(27, 38);
+  const realityScore = calculateSectionScore(39, 50);
 
   const totalScore = Math.round((feelingScore + beliefsScore + actionScore + realityScore) / 4);
 
